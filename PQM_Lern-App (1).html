@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probeklausur — Projekt- und Qualitätsmanagement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E7EBE7; --surface:#FBFCFA; --surface-2:#F0F3F0;
+  --ink:#131B19; --ink-2:#56625E; --ink-3:#8B958F;
+  --rule:#C6CFCA; --rule-strong:#98A49E;
+  --mark:#F2D33F; --mark-soft:#FAEDA0;
+  --ok:#1C6446; --ok-bg:#E3EFE8; --ok-rule:#8FBBA5;
+  --bad:#9E2A22; --bad-bg:#F5E3E1; --bad-rule:#D09A94;
+  --stamp:#1D4A69; --sp:clamp(14px,2.2vw,22px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:"Source Serif 4",Georgia,serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:Archivo,system-ui,sans-serif;margin:0;line-height:1.15}
+button{font:inherit;color:inherit}
+.frame{max-width:1180px;margin:0 auto;padding:clamp(10px,2vw,26px);position:relative;min-height:100vh}
+.frame::before,.frame::after{content:"";position:absolute;width:22px;height:22px;pointer-events:none;border-color:var(--rule-strong)}
+.frame::before{top:10px;left:10px;border-top:1.5px solid;border-left:1.5px solid}
+.frame::after{bottom:10px;right:10px;border-bottom:1.5px solid;border-right:1.5px solid}
+.shell{display:grid;grid-template-columns:266px minmax(0,1fr);gap:clamp(14px,2vw,26px);align-items:start}
+@media(max-width:900px){.shell{grid-template-columns:1fr}}
+.rail{position:sticky;top:16px}
+@media(max-width:900px){.rail{position:static}}
+.titleblock{background:var(--surface);border:1.5px solid var(--ink);font-family:"IBM Plex Mono",monospace}
+.tb-head{padding:12px 14px 11px;border-bottom:1.5px solid var(--ink)}
+.tb-head h1{font-family:Archivo,sans-serif;font-size:17px;font-weight:700;letter-spacing:-.02em;line-height:1.12}
+.tb-head .sub{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-top:7px}
+.tb-grid{display:grid;grid-template-columns:1fr 1fr}
+.tb-cell{padding:8px 10px;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);min-width:0}
+.tb-cell:nth-child(2n){border-right:none}
+.tb-cell .k{font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);display:block}
+.tb-cell .v{font-size:12.5px;font-weight:500;display:block;margin-top:2px;overflow-wrap:anywhere}
+nav.tabs{display:flex;flex-direction:column;border-bottom:1.5px solid var(--ink)}
+@media(max-width:900px){nav.tabs{flex-direction:row}}
+.tab{appearance:none;background:none;border:none;cursor:pointer;text-align:left;padding:11px 14px;
+  font-family:Archivo,sans-serif;font-size:13.5px;font-weight:600;border-bottom:1px solid var(--rule);flex:1}
+.tab:last-child{border-bottom:none}
+@media(max-width:900px){.tab{border-bottom:none;border-right:1px solid var(--rule);text-align:center}}
+.tab .n{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-3);margin-right:7px}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--surface)}
+.tab[aria-selected="true"] .n{color:var(--mark)}
+.tab:hover:not([aria-selected="true"]){background:var(--surface-2)}
+.scorebox{padding:12px 14px;font-family:"IBM Plex Mono",monospace}
+.scorebox .k{font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.srow{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;margin-top:7px;gap:8px}
+.srow b{font-weight:600}
+.meter{height:5px;background:var(--surface-2);border:1px solid var(--rule);margin-top:4px;position:relative;overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;width:0;background:var(--ok);transition:width .35s ease}
+.total{margin-top:13px;padding-top:11px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline}
+.total .big{font-family:Archivo,sans-serif;font-size:26px;font-weight:700;letter-spacing:-.03em}
+.total .k{font-size:9px}
+main{min-width:0}
+.scope{background:var(--surface);border:1.5px solid var(--ink);border-left:5px solid var(--mark);
+  padding:12px 15px;margin-bottom:var(--sp);font-size:14.5px;line-height:1.5}
+.scope .k{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--stamp);display:block;margin-bottom:5px}
+.toolbar{display:flex;flex-wrap:wrap;gap:7px;align-items:center;background:var(--surface);
+  border:1.5px solid var(--ink);padding:10px 12px;margin-bottom:var(--sp);position:sticky;top:16px;z-index:5}
+@media(max-width:900px){.toolbar{position:static}}
+.tb-label{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-right:2px}
+.chip{appearance:none;cursor:pointer;background:var(--surface);border:1px solid var(--rule-strong);
+  padding:5px 11px;font-family:Archivo,sans-serif;font-size:12px;font-weight:600;border-radius:0;transition:background .12s,border-color .12s}
+.chip:hover{background:var(--surface-2)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.chip.ghost{border-style:dashed;margin-left:auto}
+.sechead{margin:calc(var(--sp)*1.4) 0 var(--sp);display:flex;align-items:baseline;gap:12px;border-bottom:1.5px solid var(--ink);padding-bottom:7px}
+.sechead:first-child{margin-top:0}
+.sechead .num{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;color:var(--stamp);font-weight:600}
+.sechead h2{font-size:clamp(19px,3vw,25px);font-weight:700;letter-spacing:-.025em}
+.sechead .count{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+.q{background:var(--surface);border:1px solid var(--rule-strong);margin-bottom:14px}
+.q.is-ok{border-color:var(--ok-rule)}
+.q.is-bad{border-color:var(--bad-rule)}
+.q-top{display:flex;gap:12px;padding:14px 16px 12px;align-items:flex-start}
+.q-id{font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;color:var(--stamp);
+  border:1px solid var(--rule);padding:2px 6px;flex:none;margin-top:2px;background:var(--surface-2)}
+.q.is-ok .q-id{color:var(--ok);border-color:var(--ok-rule);background:var(--ok-bg)}
+.q.is-bad .q-id{color:var(--bad);border-color:var(--bad-rule);background:var(--bad-bg)}
+.q-text{font-size:16.5px;line-height:1.5}
+.q-multi{display:inline-block;margin-top:6px;font-family:"IBM Plex Mono",monospace;font-size:9.5px;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--stamp);border:1px solid var(--stamp);padding:1px 6px}
+.q-pre{margin:0 16px 12px;padding:11px 13px;background:var(--surface-2);border:1px solid var(--rule);font-size:14.5px}
+.q-pre table{border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:13px;margin-top:7px}
+.q-pre th,.q-pre td{border:1px solid var(--rule-strong);padding:3px 11px;text-align:left}
+.q-pre th{background:var(--surface);font-weight:600}
+.opts{list-style:none;margin:0;padding:0 16px 14px;display:flex;flex-direction:column;gap:6px}
+.opt{appearance:none;width:100%;text-align:left;cursor:pointer;background:var(--surface);border:1px solid var(--rule);
+  padding:9px 12px 9px 11px;display:flex;gap:11px;align-items:flex-start;font-family:"Source Serif 4",serif;
+  font-size:15.5px;line-height:1.45;transition:background .12s,border-color .12s;position:relative}
+.opt:hover:not(:disabled){background:var(--surface-2);border-color:var(--rule-strong)}
+.opt:disabled{cursor:default}
+.opt .box{flex:none;width:19px;height:19px;border:1.5px solid var(--rule-strong);margin-top:1px;display:grid;
+  place-items:center;font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:var(--ink-3);background:var(--surface)}
+.opt .txt{flex:1;min-width:0}
+.opt.picked .box{border-color:var(--ink);background:var(--ink);color:var(--surface)}
+.opt.correct{border-color:var(--ok-rule);background:var(--ok-bg)}
+.opt.correct .box{border-color:var(--ok);background:var(--ok);color:#fff}
+.opt.wrong{border-color:var(--bad-rule);background:var(--bad-bg)}
+.opt.wrong .box{border-color:var(--bad);background:var(--bad);color:#fff}
+.opt.missed{border-color:var(--ok-rule);border-style:dashed;background:var(--ok-bg)}
+.opt.missed .box{border-color:var(--ok);color:var(--ok)}
+.opt.correct .txt{position:relative;display:inline-block}
+.opt.correct .txt::before{content:"";position:absolute;left:-3px;right:-3px;top:.08em;bottom:.08em;
+  background:var(--mark-soft);transform:skewX(-9deg) scaleX(0);transform-origin:left center;
+  animation:swipe .34s cubic-bezier(.3,.9,.4,1) .05s forwards;z-index:-1;border-radius:2px}
+@keyframes swipe{to{transform:skewX(-9deg) scaleX(1)}}
+@media(prefers-reduced-motion:reduce){
+  .opt.correct .txt::before{animation:none;transform:skewX(-9deg) scaleX(1)}
+  *{transition-duration:.01ms !important}
+}
+.check{margin:0 16px 14px}
+.btn{appearance:none;cursor:pointer;background:var(--ink);color:var(--surface);border:1.5px solid var(--ink);
+  padding:7px 15px;font-family:Archivo,sans-serif;font-size:13px;font-weight:600}
+.btn:hover{background:#000}
+.btn:disabled{opacity:.4;cursor:default}
+.exp{margin:0 16px 16px;padding:12px 14px;border-left:3px solid var(--mark);background:var(--surface-2);font-size:15px;line-height:1.55}
+.exp .verdict{font-family:Archivo,sans-serif;font-weight:700;font-size:12px;letter-spacing:.07em;
+  text-transform:uppercase;display:block;margin-bottom:6px}
+.exp .verdict.ok{color:var(--ok)}
+.exp .verdict.bad{color:var(--bad)}
+.exp b{font-weight:600}
+.empty{padding:34px 18px;text-align:center;color:var(--ink-2);background:var(--surface);border:1px dashed var(--rule-strong)}
+.sheet-intro{background:var(--surface);border:1.5px solid var(--ink);padding:14px 16px;margin-bottom:var(--sp);font-size:15px}
+.card{background:var(--surface);border:1px solid var(--rule-strong);margin-bottom:14px}
+.card > h3{font-size:13px;font-weight:700;letter-spacing:.02em;padding:10px 15px;border-bottom:1px solid var(--rule-strong);
+  background:var(--surface-2);display:flex;align-items:center;gap:9px}
+.card > h3 .n{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--stamp);font-weight:600}
+.card-body{padding:14px 15px}
+.ftable{width:100%;border-collapse:collapse;font-size:14.5px}
+.ftable th,.ftable td{border-bottom:1px solid var(--rule);padding:8px 10px;text-align:left;vertical-align:top}
+.ftable th{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;border-bottom:1px solid var(--rule-strong)}
+.ftable tr:last-child td{border-bottom:none}
+.ftable .f{font-family:"IBM Plex Mono",monospace;font-size:14.5px;font-weight:600;white-space:nowrap}
+.ftable .hint{color:var(--ink-2);font-size:13.5px}
+.callout{border:1px solid var(--ink);background:var(--surface-2);padding:12px 14px;margin-top:13px;font-size:14.5px}
+.callout h4{font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
+.callout ol{margin:0;padding-left:18px}
+.callout li{margin-bottom:4px}
+.pairs{display:flex;flex-direction:column;gap:5px}
+.pair{display:grid;grid-template-columns:1fr 22px 1fr;align-items:stretch;border:1px solid var(--rule);
+  cursor:pointer;background:var(--surface);text-align:left;font-family:"Source Serif 4",serif;font-size:14.5px;width:100%}
+@media(max-width:620px){.pair{font-size:13px}}
+.pair:hover{border-color:var(--rule-strong);background:var(--surface-2)}
+.pair .side{padding:8px 11px;min-width:0}
+.pair .mid{display:grid;place-items:center;border-left:1px solid var(--rule);border-right:1px solid var(--rule);
+  font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);background:var(--surface-2)}
+.pair b{font-weight:600}
+.pair .side.b{position:relative;display:flex;align-items:center}
+.pair.hidden .side.b{background:repeating-linear-gradient(-45deg,var(--surface-2) 0 6px,var(--surface) 6px 12px)}
+.pair.hidden .side.b > span{visibility:hidden}
+.pair.hidden .side.b::after{content:"aufdecken";position:absolute;left:11px;
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;color:var(--ink-3)}
+.lists{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:12px}
+.lbox{border:1px solid var(--rule);padding:11px 13px;background:var(--surface)}
+.lbox .k{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--stamp);display:block;margin-bottom:6px}
+.lbox p{margin:0;font-size:14.5px;line-height:1.5}
+.lbox mk{background:var(--mark-soft);padding:0 3px;font-weight:600;font-style:normal}
+.quotes{list-style:none;margin:0;padding:0}
+.quotes li{padding:9px 0 9px 20px;border-bottom:1px solid var(--rule);font-size:15px;position:relative}
+.quotes li:last-child{border-bottom:none}
+.quotes li::before{content:"\201E";position:absolute;left:0;top:8px;font-size:22px;color:var(--mark);font-weight:700;line-height:1}
+.traps{counter-reset:t;list-style:none;margin:0;padding:0}
+.traps li{position:relative;padding:0 0 13px 42px;font-size:14.5px}
+.traps li:last-child{padding-bottom:0}
+.traps li::before{counter-increment:t;content:counter(t,decimal-leading-zero);position:absolute;left:0;top:0;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;color:var(--surface);background:var(--ink);padding:2px 6px}
+.traps b{font-weight:600}
+.plan{display:grid;grid-template-columns:56px 1fr}
+.plan .t{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;padding:9px 0;
+  border-bottom:1px solid var(--rule);color:var(--stamp)}
+.plan .d{padding:9px 0 9px 11px;border-bottom:1px solid var(--rule);font-size:14.5px}
+.plan .t:nth-last-child(2),.plan .d:last-child{border-bottom:none}
+.foot{margin-top:calc(var(--sp)*1.6);padding-top:11px;border-top:1px solid var(--rule);
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+:focus-visible{outline:2.5px solid var(--stamp);outline-offset:2px}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+<div class="frame"><div class="shell">
+  <aside class="rail">
+    <div class="titleblock">
+      <div class="tb-head">
+        <h1>Projekt- und<br>Qualitätsmanagement</h1>
+        <div class="sub">Probeklausur · Multiple Choice</div>
+      </div>
+      <div class="tb-grid">
+        <div class="tb-cell"><span class="k">Studiengang</span><span class="v">M. Wirt.-Inf.</span></div>
+        <div class="tb-cell"><span class="k">Semester</span><span class="v">SoSe 2026</span></div>
+        <div class="tb-cell"><span class="k">Fragen</span><span class="v" id="tbCount">—</span></div>
+        <div class="tb-cell"><span class="k">Form</span><span class="v">MC / Moodle</span></div>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button class="tab" role="tab" id="tabQuiz" aria-selected="true"><span class="n">01</span>Probeklausur</button>
+        <button class="tab" role="tab" id="tabSheet" aria-selected="false"><span class="n">02</span>Spickzettel</button>
+      </nav>
+      <div class="scorebox">
+        <div class="k">Stand</div>
+        <div id="scoreRows"></div>
+        <div class="total"><span class="k">Gesamt richtig</span><span class="big" id="scoreTotal">—</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div id="viewQuiz" role="tabpanel">
+      <div class="scope"><span class="k">Prüfungsumfang</span><span id="scopeQuiz"></span></div>
+      <div class="toolbar">
+        <span class="tb-label">Filter</span>
+        <button class="chip" data-filter="all" aria-pressed="true">Alle</button>
+        <button class="chip" data-filter="A" aria-pressed="false">Teil A</button>
+        <button class="chip" data-filter="B" aria-pressed="false">Teil B</button>
+        <button class="chip" data-filter="C" aria-pressed="false">Rechnen</button>
+        <button class="chip" data-filter="wrong" aria-pressed="false">Nur falsche</button>
+        <button class="chip" data-filter="open" aria-pressed="false">Offen</button>
+        <button class="chip ghost" id="btnReset">Zurücksetzen</button>
+      </div>
+      <div id="quizBody"></div>
+      <div class="foot">
+        <span>Antworten werden nur im Browser gehalten — ein Reload setzt alles zurück.</span>
+        <span>Antwortreihenfolge bei jedem Laden neu gemischt</span>
+      </div>
+    </div>
+
+    <div id="viewSheet" role="tabpanel" hidden>
+      <div class="scope"><span class="k">Prüfungsumfang</span><span id="scopeSheet"></span></div>
+      <div class="sheet-intro">
+        <b>Für die letzte Runde heute Abend und morgen früh.</b> Die Begriffspaare in Abschnitt 02 sind
+        zunächst verdeckt — anklicken zum Aufdecken. Damit lässt sich das Paar in beide Richtungen abfragen,
+        und genau dort werden im Test die meisten Fallen gebaut.
+      </div>
+      <div class="card"><h3><span class="n">01</span>Formeln — diese müssen sitzen</h3>
+        <div class="card-body">
+          <table class="ftable"><thead><tr><th>Thema</th><th>Formel</th><th>Merkhilfe</th></tr></thead>
+          <tbody id="formulaRows"></tbody></table>
+          <div class="callout"><h4>Zwei Sätze, die alle EVA-Fragen lösen</h4>
+            <ol><li><b>EV steht immer vorne.</b> Ein negatives Ergebnis oder ein Wert unter 1 heißt damit immer „schlecht“.</li>
+            <li><b>AC → Kosten, PV → Termin.</b> CV und CPI enthalten AC (Geld); SV und SPI enthalten PV (Zeit).</li></ol></div>
+          <div class="callout"><h4>EVA-Grundgrößen</h4>
+            PV = Plan bis heute · EV (PC) = Wert der geleisteten Arbeit zu Plankosten · AC = Istkosten ·
+            BAC = Gesamtbudget · EAC = Gesamtprognose · ETC = Restaufwand.</div>
+        </div></div>
+      <div class="card"><h3><span class="n">02</span>Begriffspaare — hier werden die Fallen gebaut
+        <button class="chip" id="btnReveal" style="margin-left:auto" aria-pressed="false">Alle aufdecken</button></h3>
+        <div class="card-body"><div class="pairs" id="pairRows"></div></div></div>
+      <div class="card"><h3><span class="n">03</span>Listen und Reihenfolgen — Projektmanagement</h3>
+        <div class="card-body"><div class="lists" id="listsPM"></div></div></div>
+      <div class="card"><h3><span class="n">04</span>Listen und Reihenfolgen — Qualitätsmanagement</h3>
+        <div class="card-body"><div class="lists" id="listsQM"></div></div></div>
+      <div class="card"><h3><span class="n">05</span>Merksätze, die der Dozent wörtlich verwendet</h3>
+        <div class="card-body"><ul class="quotes" id="quoteRows"></ul></div></div>
+      <div class="card"><h3><span class="n">06</span>Vier Fallen, auf die gezielt gebaut wird</h3>
+        <div class="card-body"><ol class="traps" id="trapRows"></ol></div></div>
+      <div class="card"><h3><span class="n">07</span>Morgen früh — 45 Minuten</h3>
+        <div class="card-body"><div class="plan" id="planRows"></div>
+          <div class="callout"><h4>Wenn du im Test unsicher bist</h4>
+          Erst die eindeutig falschen Optionen streichen, dann prüfen, ob eine Antwort ein Begriffspaar
+          vertauscht oder einen Listenpunkt erfindet. Damit lassen sich die meisten verbleibenden Fragen entscheiden.</div>
+        </div></div>
+    </div>
+  </main>
+</div></div>
+
+<script>
+const D = {"questions": [{"id": "A1", "part": "A", "q": "Wie lautet die korrekte Reihenfolge der Projektphasen?", "opts": ["Definition → Initialisierung → Planung → Steuerung → Abschluss", "Initialisierung → Definition → Planung → Steuerung → Abschluss", "Initialisierung → Planung → Definition → Steuerung → Abschluss", "Definition → Planung → Initialisierung → Abschluss → Steuerung"], "correct": [1], "exp": "Initialisierung → Definition → Planung → Steuerung → Abschluss. „Grundlagen“ comes before these but is an introductory chapter, not a phase. This ordering is the backbone of the entire lecture and a near-certain exam question."}, {"id": "A2", "part": "A", "multi": true, "q": "Welche Merkmale kennzeichnen ein Projekt nach DIN 69901?", "opts": ["Einmaligkeit der Bedingungen", "Dauerhafte Wiederholung gleichartiger Abläufe", "Zeitliche, finanzielle und personelle Begrenzung", "Eine projektspezifische Organisation", "Garantierte Gewinnerzielung"], "correct": [0, 2, 3], "exp": "DIN 69901 defines a project by <b>Einmaligkeit der Bedingungen</b>, limits on time/finance/personnel, a clear goal, delimitation from other work, and its own project-specific organisation. „Dauerhafte Wiederholung“ is the exact opposite of Einmaligkeit, and „Garantierte Gewinnerzielung“ is invented — no norm guarantees profit. Watch this pattern: plausible business goals slipped into a definition list."}, {"id": "A3", "part": "A", "q": "Welche Zuordnung von Vorgehensmodell und Modellfamilie ist korrekt?", "opts": ["Wasserfallmodell = agil", "Spiralmodell = sequenziell", "Scrum = agil", "Kanban = sequenziell"], "correct": [2], "exp": "Three families: <b>sequenziell</b> (Wasserfall, V-Modell), <b>iterativ/wiederholend</b> (Spiralmodell, Simultaneous Engineering), <b>agil</b> (Scrum, Kanban)."}, {"id": "A4", "part": "A", "q": "Was beschreibt das V-Modell zutreffend?", "opts": ["Der linke Ast beschreibt das Testen, der rechte Ast die Entwicklung.", "Jeder Entwicklungsstufe steht eine korrespondierende Teststufe gegenüber.", "Es verzichtet bewusst auf Verifikation und Validierung.", "Es ist ein agiles Vorgehensmodell mit kurzen Iterationen."], "correct": [1], "exp": "Left arm = development (Grob- → Feinentwurf), right arm = testing and verification. Each development stage has an opposing test stage (Modulentwurf ↔ Modultest, Anforderungen ↔ Abnahmetest). The „V“ stands for Verifikation und Validierung. The option that reverses the two arms is the classic trap."}, {"id": "A5", "part": "A", "q": "Das „magische Dreieck“ verknüpft welche drei Größen?", "opts": ["Zeit – Kosten – Qualität", "Zeit – Risiko – Stakeholder", "Kosten – Ressourcen – Dokumentation", "Qualität – Personal – Kommunikation"], "correct": [0], "exp": "Zeit – Kosten – Qualität (Leistung/Umfang). Change one corner and the others move with it."}, {"id": "A6", "part": "A", "q": "Nach IPMA ICB 4.0 wird Projekterfolg um welche drei Dimensionen erweitert?", "opts": ["Product, Price, Place", "Perspective, People, Practice", "Plan, Process, Performance", "Purpose, Politics, Priority"], "correct": [1], "exp": "Perspective, People, Practice. IPMA ICB 4.0 extends success <i>beyond</i> the magic triangle. Remember the two levels: triangle = classic, IPMA = extended."}, {"id": "A7", "part": "A", "q": "Worin besteht der Unterschied zwischen Programm und Portfolio?", "opts": ["Ein Programm umfasst alle Projekte einer Organisation; ein Portfolio nur thematisch verbundene.", "Ein Programm bündelt inhaltlich zusammenhängende Projekte; ein Portfolio umfasst alle Projekte und Programme, auch ohne inhaltlichen Zusammenhang.", "Programm und Portfolio sind Synonyme.", "Ein Portfolio ist immer ein Teilprojekt eines Programms."], "correct": [1], "exp": "Programm = thematically linked projects sharing a strategic goal. Portfolio = <i>all</i> projects and programmes of an organisation, related or not; its purpose is optimal resource allocation. The option that reverses the two definitions is the trap."}, {"id": "A8", "part": "A", "q": "Ein Unternehmen entwickelt einen Prototyp für eine völlig neuartige Technologie; die technische Machbarkeit ist unklar. Um welche Projektart handelt es sich am ehesten?", "opts": ["Standardprojekt", "Investitionsprojekt", "Forschungs- und Entwicklungs- bzw. Pionierprojekt", "Organisationsprojekt"], "correct": [2], "exp": "Prototype plus unclear feasibility = F&E/Pionierprojekt. Quick mapping: known rollout = Standardprojekt; new plant or equipment = Investitionsprojekt; internal restructuring = Organisationsprojekt; work under customer contract = externes Projekt."}, {"id": "A9", "part": "A", "q": "Welche Organisationsform wird durch „Primus inter pares“ charakterisiert?", "opts": ["ARGE", "Konsortium", "Joint Venture", "Matrixorganisation"], "correct": [1], "exp": "Konsortium — the Konsortialführer coordinates as „first among equals“. ARGE ↔ construction projects; Joint Venture ↔ a jointly owned subsidiary of at least two companies."}, {"id": "A10", "part": "A", "multi": true, "q": "Welche Inhalte muss ein Projektauftrag nach DIN 69901 mindestens enthalten?", "opts": ["Zielsetzung", "Erwartete Ergebnisse", "Detaillierter Netzplan aller Vorgänge", "Randbedingungen", "Verantwortlichkeiten und Ressourcen", "Willensbekundung von Auftraggeber und Auftragnehmer"], "correct": [0, 1, 3, 4, 5], "exp": "The DIN 69901 minimum: Zielsetzung, erwartete Ergebnisse, Randbedingungen, Verantwortlichkeiten, Ressourcen, Willensbekundung AG/AN. A detailed Netzplan belongs to the <i>Planung</i> phase, far later — a classic „too specific, too early“ distractor."}, {"id": "A11", "part": "A", "q": "Was sind „Nichtziele“?", "opts": ["Ziele, die nicht erreicht wurden", "Ziele, die bewusst abgrenzen, was NICHT Teil des Projekts ist", "Ziele ohne messbare Kriterien", "Ziele, die vom Auftragnehmer abgelehnt wurden"], "correct": [1], "exp": "Nichtziele deliberately define what is <i>not</i> part of the project, preventing misunderstandings about scope. A lecturer favourite."}, {"id": "A12", "part": "A", "q": "Welche Aussage zu Zielhierarchie und Zielmatrix trifft zu?", "opts": ["Die Zielhierarchie deckt Zielkonflikte auf, die Zielmatrix strukturiert die Ziele.", "Die Zielhierarchie strukturiert Ziele und prüft Vollständigkeit; die Zielmatrix deckt Zielkonflikte auf.", "Beide Werkzeuge dienen ausschließlich der Terminplanung.", "Die Zielmatrix ersetzt die Priorisierung."], "correct": [1], "exp": "Zielhierarchie = structure, visualisation, completeness check. Zielmatrix = reveals Zielkonflikte. Priorisierung then provides the basis for deciding when goals collide — it is not replaced by the matrix."}, {"id": "A13", "part": "A", "q": "Welche Aussage zu Lastenheft und Pflichtenheft ist korrekt?", "opts": ["Das Lastenheft wird vom Auftragnehmer erstellt und beschreibt das WIE.", "Das Lastenheft wird vom Auftraggeber erstellt und beschreibt das WAS und WOFÜR.", "Das Pflichtenheft wird vom Auftraggeber erstellt und beschreibt das WAS.", "Lastenheft und Pflichtenheft werden gemeinsam vom Auftraggeber erstellt."], "correct": [1], "exp": "<b>Lastenheft = Auftraggeber, WAS und WOFÜR</b> — and it should not unnecessarily constrain the solution path. <b>Pflichtenheft = Auftragnehmer, WIE und WOMIT</b>. If you memorise one pair in this whole course, make it this one."}, {"id": "A14", "part": "A", "q": "Was bedeutet Rückverfolgbarkeit (Traceability) im Anforderungsmanagement?", "opts": ["Die Möglichkeit, Projektkosten auf Kostenstellen zu verteilen", "Die Fähigkeit, Verbindungen und Abhängigkeiten zwischen Informationen über den gesamten Lebenszyklus nachzuvollziehen", "Die Archivierung aller Projektdokumente nach Projektende", "Die nachträgliche Änderung genehmigter Anforderungen"], "correct": [1], "exp": "Traceability (nach Rupp) = being able to follow connections and dependencies across the whole lifecycle — Anforderung ↔ Design ↔ Test, parent/child and predecessor/successor links."}, {"id": "A15", "part": "A", "q": "Welche Zuordnung von Kompetenz, Verantwortung und Befugnis ist korrekt?", "opts": ["Kompetenz = Rechenschaftspflicht, Verantwortung = Handlungsrecht", "Kompetenz = Können, Verantwortung = Rechenschaftspflicht, Befugnis = Handlungsrecht", "Befugnis = nachgewiesene Fähigkeit, Kompetenz = Handlungsrecht", "Verantwortung und Befugnis sind identisch"], "correct": [1], "exp": "Kompetenz = demonstrated ability (Können). Verantwortung = the duty to account for a task. Befugnis = the right to act. Key idea: Verantwortung and Befugnis should match — you cannot be accountable without the authority to act."}, {"id": "A16", "part": "A", "q": "Wie viele Personen dürfen in der RACI-Matrix pro Aufgabe die Rolle „A“ (Accountable) innehaben?", "opts": ["Beliebig viele", "Mindestens zwei", "Genau eine", "Keine, „A“ ist optional"], "correct": [2], "exp": "Exactly one. R = does the work, <b>A = accountable and decides, exactly one per task</b>, C = consulted (two-way dialogue), I = informed (one-way). The „how many A?“ question is near-guaranteed."}, {"id": "A17", "part": "A", "q": "Welche Aussage zu Meilensteinen ist richtig?", "opts": ["Ein Meilenstein hat eine definierte Dauer größer als 0.", "Ein Meilenstein ist ein Ereignis besonderer Bedeutung mit der Dauer 0.", "Ein Meilenstein ist ein Vorgang mit Anfang und Ende.", "Meilensteine werden erst im Projektabschluss definiert."], "correct": [1], "exp": "Meilenstein = Ereignis besonderer Bedeutung, <b>Dauer = 0</b>. Contrast: a <i>Vorgang</i> has a defined start and end and therefore a duration; an <i>Ereignis</i> describes a state occurring and has none."}, {"id": "A18", "part": "A", "multi": true, "q": "Welche Aussagen zum Projektstrukturplan (PSP) treffen zu?", "opts": ["Der PSP zeigt, WAS zu tun ist, enthält aber keine Termine.", "Pro Projekt wird genau ein PSP erstellt.", "Jedes Arbeitspaket hat genau eine verantwortliche Person.", "Der PSP legt die Reihenfolge der Vorgänge fest.", "Als Faustregel gelten ca. 20–100 Arbeitspakete."], "correct": [0, 1, 2, 4], "exp": "The PSP shows the <b>WAS</b>, not the sequence or the dates — sequencing belongs to Ablauf- und Terminplanung, so that statement is false. Also memorise: one PSP per project, exactly one responsible person per Arbeitspaket (otherwise <i>Verantwortungsdiffusion</i>), rule of thumb 20–100 APs at roughly 1–5 % of scope each."}, {"id": "A19", "part": "A", "q": "Was kennzeichnet die (Breitband-)Delphi-Methode?", "opts": ["Eine einmalige Schätzung durch den Projektleiter allein", "Mehrere Experten schätzen anonym und in mehreren Runden, bis Konsens erreicht wird", "Die Ableitung des Aufwands aus dem Funktionsumfang", "Eine Messung des tatsächlichen Aufwands vergangener Projekte"], "correct": [1], "exp": "Delphi = <b>anonymous, iterative, several experts</b>, with the mean recalculated each round until consensus. Anonymity prevents dominance effects. Deriving effort from functional scope describes Function Points instead."}, {"id": "A20", "part": "A", "q": "Die Function-Point-Methode schätzt den Aufwand primär über …", "opts": ["die Anzahl der Codezeilen", "den Funktionsumfang (Eingaben, Ausgaben, Abfragen, Daten)", "die Teamgröße", "die Anzahl der Meilensteine"], "correct": [1], "exp": "Function Points estimate via functional scope — inputs, outputs, enquiries, data — rated for complexity, then converted using empirical values (e.g. 250 FP × 6 h/FP = 1500 h). Explicitly <i>not</i> lines of code; that is the distractor."}, {"id": "A21", "part": "A", "q": "Bei der Dreipunktschätzung gilt: Wo werden Puffer berücksichtigt?", "opts": ["Im wahrscheinlichsten Wert (w)", "Im optimistischen Wert (min)", "Im pessimistischen Wert (max)", "Puffer werden bei der Dreipunktschätzung grundsätzlich nicht berücksichtigt"], "correct": [2], "exp": "Buffers sit in the <b>max</b> value, so that w stays realistic. If you padded w, the whole weighted estimate would be inflated — which defeats the purpose of the three-point method."}, {"id": "A22", "part": "A", "q": "Welche Darstellung zeigt waagerechte Balken auf einer Zeitachse?", "opts": ["Netzplan", "Gantt-Diagramm", "Meilensteintrendanalyse", "Projektstrukturplan"], "correct": [1], "exp": "Gantt = horizontal bars on a timeline. Netzplan = boxes with arrows. MTA = trend or triangle diagram over reporting dates. The lecture runs an explicit picture-matching exercise on this, so expect a visual version."}, {"id": "A23", "part": "A", "q": "Worin unterscheiden sich Ablaufplanung und Terminplanung?", "opts": ["Die Ablaufplanung enthält bereits konkrete Termine, die Terminplanung nicht.", "Die Ablaufplanung beschreibt Aufgaben und Reihenfolge ohne Termine; die Terminplanung ergänzt Zeiten und Ressourcen.", "Beide Begriffe sind identisch.", "Die Terminplanung erfolgt vor der Ablaufplanung."], "correct": [1], "exp": "Ablaufplanung = tasks and their order, <i>no dates yet</i>. Terminplanung = the Ablaufplanung enriched with times and resources."}, {"id": "A24", "part": "A", "q": "Bei der Vorwärtsrechnung im Netzplan gilt bei mehreren Vorgängern:", "opts": ["Maßgeblich ist der früheste FE der Vorgänger.", "Maßgeblich ist der späteste FE der Vorgänger.", "Es wird der Mittelwert aller FE gebildet.", "Die Vorgänger werden ignoriert."], "correct": [1], "exp": "Forward pass: with several predecessors, the <b>latest FE</b> governs — you cannot start until all of them are finished. The backward pass mirrors this: with several successors, the <b>earliest SB</b> governs. These two are easy to swap under pressure, so anchor them with the logic rather than the wording."}, {"id": "A25", "part": "A", "q": "Ein Vorgang hat einen Gesamtpuffer von 0. Was folgt daraus?", "opts": ["Der Vorgang ist unkritisch und kann beliebig verschoben werden.", "Der Vorgang liegt auf dem kritischen Pfad; jede Verzögerung verlängert das Projekt.", "Der Vorgang ist bereits abgeschlossen.", "Der Vorgang hat keine Nachfolger."], "correct": [1], "exp": "GP = 0 ⇒ on the critical path. The critical path is the longest time-determining chain; any delay there extends the whole project, which is why Terminoptimierung always starts there."}, {"id": "A26", "part": "A", "multi": true, "q": "Welche Verfahren dienen der Auflösung von Ressourcenkonflikten?", "opts": ["Schieben", "Strecken", "Zertifizieren", "Stauchen", "Teilen"], "correct": [0, 1, 3, 4], "exp": "Schieben (shift), Strecken (stretch — longer duration, fewer resources per unit), Stauchen (compress — shorter duration, more resources), Teilen (split into sections). After every measure, re-check that the logical sequence still holds. „Zertifizieren“ comes from the QM half — watch for cross-contamination distractors like this."}, {"id": "A27", "part": "A", "q": "Wofür steht das Akronym PEST in der Umfeldanalyse?", "opts": ["Personal, Ergebnis, Struktur, Termin", "Political, Economical, Sociological, Technological", "Planning, Execution, Steering, Termination", "Process, Environment, Strategy, Technology"], "correct": [1], "exp": "Political, Economical, Sociological, Technological. <b>STEEP</b> adds <b>Environmental</b>."}, {"id": "A28", "part": "A", "q": "Nach welchen Kriterien werden Stakeholder typischerweise in einer Stakeholder-Map eingeordnet?", "opts": ["Alter und Betriebszugehörigkeit", "Macht/Einfluss und Interesse/Konfliktpotenzial", "Kosten und Termine", "Fachliche Qualifikation und Verfügbarkeit"], "correct": [1], "exp": "Macht/Einfluss against Interesse/Konfliktpotenzial. High power plus high interest = manage closely; the position on the map determines communication intensity."}, {"id": "A29", "part": "A", "multi": true, "q": "Welche der folgenden sind Risikobewältigungsstrategien?", "opts": ["Vermeiden", "Vermindern", "Übertragen", "Akzeptieren", "Ignorieren"], "correct": [0, 1, 2, 3], "exp": "Vermeiden, Vermindern, Übertragen, Akzeptieren. „Ignorieren“ is not a strategy — note that <i>Akzeptieren</i> is a conscious, documented decision, which is exactly what distinguishes it from ignoring."}, {"id": "A30", "part": "A", "q": "Bei der 0/100-Methode zur Fortschrittsmessung gilt:", "opts": ["50 % werden bei Start, 50 % bei Fertigstellung angerechnet.", "Der Fortschritt wird erst bei vollständiger Fertigstellung mit 100 % angerechnet.", "Der Fortschritt wird täglich linear fortgeschrieben.", "100 % werden bereits bei Start des Vorgangs angerechnet."], "correct": [1], "exp": "0/100: nothing until complete, then 100 %. 50/50: half at start, half at completion. Both are Start/Ende methods — objective but coarse, which is why they suit projects with <i>many</i> activities, where over- and underestimates balance out."}, {"id": "A31", "part": "A", "q": "In der Meilensteintrendanalyse steigt eine Linie über die Berichtszeitpunkte an. Was bedeutet das?", "opts": ["Der Meilenstein wird früher erreicht als geplant.", "Der Meilenstein verschiebt sich nach hinten (Verzug).", "Der Meilenstein liegt exakt im Plan.", "Der Meilenstein wurde gestrichen."], "correct": [1], "exp": "Rising line = milestone slipping later = Verzug. Falling = acceleration. Horizontal = on plan. The MTA is an early-warning instrument."}, {"id": "A32", "part": "A", "q": "Was bedeutet „Lessons Learned“ im Projektabschluss?", "opts": ["Die vollständige Archivierung aller Projektdokumente", "Die systematische Sicherung von Erfahrungen UND deren tatsächliche Wiederverwendung in Folgeprojekten", "Die Abnahme durch den Auftraggeber", "Die Auflösung des Projektteams"], "correct": [1], "exp": "Securing experience <b>and actually reusing it</b> — checklists, templates, estimating values, experience reports. The lecture's own phrasing: archiving alone creates traceability but no benefit for follow-up projects. Expect a distractor that stops at „archivieren“."}, {"id": "B1", "part": "B", "q": "Wie wird der Begriff Qualität definiert?", "opts": ["Die Fehlerfreiheit eines Produkts", "Der Grad, in dem ein Satz inhärenter Merkmale Anforderungen erfüllt", "Das Verhältnis von Preis zu Leistung", "Die Zufriedenheit des Kunden nach dem Kauf"], "correct": [1], "exp": "„Grad, in dem ein Satz inhärenter Merkmale Anforderungen erfüllt.“ Often asked near-verbatim. The underlying concept is the relationship between <i>vorhandene</i> and <i>geforderte Beschaffenheit</i> — and it applies to products, processes <i>and</i> systems, not just products."}, {"id": "B2", "part": "B", "q": "Eine Basisanforderung nach Kano wird vollständig erfüllt. Welche Wirkung hat das auf die Kundenzufriedenheit?", "opts": ["Überproportional hohe Begeisterung", "Ein neutraler Zustand — der Kunde nimmt es kaum positiv wahr", "Linear steigende Zufriedenheit", "Deutliche Unzufriedenheit"], "correct": [1], "exp": "Basisanforderungen produce only a <b>neutral</b> state when fulfilled; their absence produces immediate, marked dissatisfaction. That asymmetry is the whole point of Kano."}, {"id": "B3", "part": "B", "q": "Eine Begeisterungsanforderung wird nicht erfüllt. Was folgt daraus?", "opts": ["Sofortige, deutliche Unzufriedenheit", "Keine Unzufriedenheit, da der Kunde sie gar nicht erwartet hat", "Der Vertrag wird automatisch nichtig", "Linear sinkende Zufriedenheit"], "correct": [1], "exp": "Begeisterungsanforderungen are latent; the customer does not ask for them, so non-fulfilment causes no dissatisfaction. Fulfilment, by contrast, causes disproportionate satisfaction — the „Wow“ effect."}, {"id": "B4", "part": "B", "q": "Welche zeitliche Dynamik beschreibt das Kano-Modell?", "opts": ["Basisanforderungen entwickeln sich zu Begeisterungsanforderungen.", "Begeisterungsanforderungen werden mit der Zeit zu Leistungs- und später zu Basisanforderungen.", "Leistungsanforderungen verschwinden mit der Zeit vollständig.", "Die Kategorien sind über die Zeit unveränderlich."], "correct": [1], "exp": "Begeisterung → Leistung → Basis. What delights today is expected tomorrow. The reversed direction is the trap."}, {"id": "B5", "part": "B", "q": "Welche drei Ebenen der Qualitätsbetrachtung werden unterschieden?", "opts": ["Kunde – Lieferant – Wettbewerber", "System – Prozess – Produkt", "Strategie – Taktik – Operativ", "Plan – Ist – Soll"], "correct": [1], "exp": "<b>Systemqualität</b> (the organisation: structures, rules, roles, culture, resources), <b>Prozessqualität</b> (the creation: flows, interfaces, lead times, error-proneness), <b>Produktqualität</b> (the result: function, reliability, user experience)."}, {"id": "B6", "part": "B", "q": "Worin unterscheiden sich Qualitätsmanagement (QM) und Qualitätsmanagementsystem (QMS)?", "opts": ["QM ist das System, QMS sind die Tätigkeiten.", "QM sind die aufeinander abgestimmten Tätigkeiten; das QMS ist das System aus Strukturen, Ressourcen und Dokumentation, das diese dauerhaft verankert.", "QM und QMS sind synonym.", "Das QMS gilt nur für zertifizierte Unternehmen, QM für alle anderen."], "correct": [1], "exp": "QM = the coordinated <i>activities</i> (leiten und lenken bezüglich Qualität). QMS = the <i>system</i> — structures, resources, documentation — that anchors those activities permanently. The reversed version is the trap."}, {"id": "B7", "part": "B", "q": "Welche Reihenfolge ist korrekt?", "opts": ["Qualitätsziele (strategischer Rahmen) → Qualitätspolitik (messbar)", "Qualitätspolitik (strategische Ausrichtung und Rahmen) → Qualitätsziele (konkret und messbar)", "Beide werden unabhängig voneinander festgelegt.", "Qualitätsziele werden extern vorgegeben."], "correct": [1], "exp": "Qualitätspolitik first — the official declaration by top management, the strategic framework — then Qualitätsziele derived from it: concrete, measurable, regularly monitored."}, {"id": "B8", "part": "B", "q": "Welcher Teil des Qualitätsmanagements ist auf das <i>Erzeugen von Vertrauen</i> gerichtet, dass Anforderungen erfüllt werden?", "opts": ["Qualitätsplanung", "Qualitätssteuerung", "Qualitätssicherung", "Qualitätsverbesserung"], "correct": [2], "exp": "Qualitätssicherung is aimed at creating confidence, essentially through two things: the QM-Handbuch (Darlegung) and regular internal audits. This quartet is the most-confused set in Part B. <b>Planung</b> = set goals plus the processes and resources to reach them. <b>Steuerung</b> = operationally meet requirements and correct deviations. <b>Sicherung</b> = create confidence. <b>Verbesserung</b> = increase the <i>capability</i> to meet requirements, usually via KVP."}, {"id": "B9", "part": "B", "q": "Welche Beschreibung passt zur Qualitätssteuerung (Qualitätslenkung)?", "opts": ["Festlegen der Qualitätsziele und der nötigen Prozesse und Ressourcen", "Operativer Prozess, der Soll-Ist-Abweichungen erkennt und durch vorbeugende, überwachende und korrigierende Maßnahmen behebt", "Erhöhung der Fähigkeit, Anforderungen zu erfüllen", "Nachweis gegenüber externen Stellen"], "correct": [1], "exp": "Qualitätssteuerung = the operational process; preventive, monitoring and corrective measures detect and fix Soll-Ist deviations. Also called Qualitätslenkung or Qualitätsregelung. Setting goals is Planung; raising capability is Verbesserung."}, {"id": "B10", "part": "B", "q": "Der PDCA-Zyklus wird auch bezeichnet als …", "opts": ["Ishikawa-Zyklus", "Deming- bzw. Shewhart-Cycle", "Pareto-Kreis", "Kano-Regelkreis"], "correct": [1], "exp": "Deming-Cycle / Shewhart-Cycle / PDSA. Historically traced to Shewhart, popularised by Deming. Map the four QM activities onto it: Plan ≈ Planung, Do = umsetzen, Check ≈ Sicherung und Steuerung, Act ≈ Verbesserung."}, {"id": "B11", "part": "B", "q": "Welche Zuordnung stimmt?", "opts": ["Aufbauorganisation = WIE und WOMIT, Ablauforganisation = WER", "Aufbauorganisation = WER macht was, Ablauforganisation = WIE und WOMIT", "Beide beantworten die Frage WARUM.", "Die Ablauforganisation regelt ausschließlich die Hierarchie."], "correct": [1], "exp": "<b>Aufbauorganisation = WER macht was</b> — task distribution, responsibilities, competencies; static, the Organigramm. <b>Ablauforganisation = WIE und WOMIT</b> — work steps, equipment, spatial and temporal sequence; dynamic. Another very popular confusion question."}, {"id": "B12", "part": "B", "q": "Welche zwei übergeordneten Ziele verfolgt die Betriebsorganisation?", "opts": ["Gewinnmaximierung und Marktanteilsgewinn", "Humanisierung der Arbeit und Steigerung der Wirtschaftlichkeit", "Zertifizierungsfähigkeit und Haftungsbegrenzung", "Digitalisierung und Standardisierung"], "correct": [1], "exp": "Betriebsorganisation shapes the interplay of structure and process so that two things are achieved: <b>Humanisierung der Arbeit</b> (low physical and psychological strain, abilities put to sensible use) and <b>Steigerung der Wirtschaftlichkeit</b> (efficient, low-friction workflows). Note again that „Gewinnmaximierung“ is a distractor the lecture never uses."}, {"id": "B13", "part": "B", "q": "Wer trägt die Gesamtverantwortung für das Qualitätsmanagementsystem?", "opts": ["Der QM-Beauftragte (QMB)", "Die oberste Leitung / das Top-Management", "Der Prozesseigner", "Die Fachexpert:innen"], "correct": [1], "exp": "The oberste Leitung carries overall responsibility — <b>not the QMB</b>. The QMB supports leadership and maintains the documentation; the Qualitätsmanager is responsible for building and developing the QMS and reports upward. Building a QMS is explicitly a Führungsaufgabe."}, {"id": "B14", "part": "B", "q": "Wofür ist ein Process Owner (Prozesseigner) verantwortlich?", "opts": ["Für die Aufbauorganisation des gesamten Unternehmens", "Für einen definierten Prozess end-to-end, einschließlich dessen Verbesserung", "Ausschließlich für die Dokumentenablage", "Für die Rechnungsprüfung"], "correct": [1], "exp": "End-to-end responsibility for one defined process, including driving its improvement, regardless of which departments are involved."}, {"id": "B15", "part": "B", "q": "Was kennzeichnet die prozessorientierte Organisation?", "opts": ["Die Struktur folgt den Abteilungen; der Prozess ordnet sich unter.", "Die Struktur folgt den End-to-End-Prozessen; Process Owner verantworten den gesamten Ablauf abteilungsübergreifend.", "Es gibt keine Verantwortlichkeiten mehr.", "Sie ist identisch mit der Matrixorganisation."], "correct": [1], "exp": "Not the department but the (business) process is the starting point — for example Kundenauftragsprozess von Angebot bis Zahlung, or Produktentstehung von Idee bis Serienstart. Process Owner are responsible for the entire flow, teams are often interdisciplinary around it, and the optimisation targets are Durchlaufzeit, Qualität and Kundenzufriedenheit."}, {"id": "B16", "part": "B", "q": "Was kennzeichnet eine Matrixorganisation?", "opts": ["Die Struktur folgt ausschließlich den End-to-End-Prozessen.", "Zwei Logiken werden kombiniert (z. B. Funktion und Produkt/Projekt); Mitarbeitende haben zwei Berichtsperspektiven.", "Es gibt keine Führungsebene.", "Sie vermeidet vollständig Koordinationsaufwand und Konflikte."], "correct": [1], "exp": "Matrix = a deliberate hybrid combining two logics, for instance function and product/project/region; employees have two reporting perspectives. In practice this produces <i>higher</i> coordination effort and potential conflict when functional and product goals diverge — so the „avoids conflict entirely“ option is wrong."}, {"id": "B17", "part": "B", "q": "Welche Aussage zum Verhältnis von Prozess und Geschäftsprozess ist korrekt?", "opts": ["Jeder Prozess ist ein Geschäftsprozess.", "Jeder Geschäftsprozess besteht aus vielen Prozessen, aber nicht jeder Prozess ist ein Geschäftsprozess.", "Geschäftsprozesse sind stets kleiner als Prozesse.", "Geschäftsprozesse laufen ausschließlich innerhalb einer Abteilung ab."], "correct": [1], "exp": "A Geschäftsprozess is cross-functional, thought end-to-end from the customer, directly value-creating, with goals derived from business strategy. Every Geschäftsprozess contains many Prozesse; the reverse does not hold. This is a verbatim Merksatz from the lecture."}, {"id": "B18", "part": "B", "multi": true, "q": "Welche Merkmale kennzeichnen einen gut definierten Prozess?", "opts": ["Messbarkeit", "Wiederholbarkeit", "Konsistenz", "Mehrwert", "Einmaligkeit"], "correct": [0, 1, 2, 3], "exp": "Messbarkeit, Wiederholbarkeit, Konsistenz, Mehrwert. <b>„Einmaligkeit“ is a project characteristic</b> — the exact opposite of what you want in a process. This is the sharpest cross-over trap in the course: PM prizes uniqueness, QM prizes repeatability."}, {"id": "B19", "part": "B", "q": "Wofür steht das EVA-Prinzip in der Prozessbetrachtung?", "opts": ["Earned-Value-Analyse", "Eingabe → Verarbeitung → Ausgabe (Input → Aktivitäten → Output)", "Effektivität, Verfügbarkeit, Auslastung", "Evaluation, Verbesserung, Anpassung"], "correct": [1], "exp": "In the QM half, EVA = <b>Eingabe → Verarbeitung → Ausgabe</b>, the basic structure of a process: a Prozess converts Eingaben into Ergebnisse.<br>The Earned-Value-Analyse is a different EVA entirely and belongs to Projektsteuerung. The same abbreviation carrying two meanings across the two halves of the course is exactly the kind of thing an MC exam exploits — read which half the question is in."}, {"id": "B20", "part": "B", "q": "Wie wird Prozessmanagement definiert (nach Gaitanides)?", "opts": ["Die Zertifizierung von Prozessen durch unabhängige Dritte", "Planerische, organisatorische und kontrollierende Maßnahmen zur zielorientierten Steuerung der Wertschöpfungskette hinsichtlich Qualität, Zeit, Kosten und Kundenzufriedenheit", "Die Dokumentation aller Abläufe in einem Handbuch", "Die ausschließlich IT-gestützte Automatisierung von Abläufen"], "correct": [1], "exp": "Note the four target dimensions in the definition — <b>Qualität, Zeit, Kosten, Kundenzufriedenheit</b> — and the three types of measure: planerisch, organisatorisch, kontrollierend. Documentation alone is explicitly not enough: processes must be built, introduced, maintained and continually improved."}, {"id": "B21", "part": "B", "q": "Welche Prozessarten unterscheidet das Prozesshaus?", "opts": ["Führungs-, Kern- und Unterstützungsprozesse", "Interne, externe und hybride Prozesse", "Plan-, Ist- und Soll-Prozesse", "Schnelle, langsame und blockierte Prozesse"], "correct": [0], "exp": "Führungs-, Kern-/Wertschöpfungs- und Unterstützungsprozesse; the Prozesshaus also places Projektmanagementprozesse in context. Only the Kernprozesse are directly value-creating from the customer's point of view — support processes (IT, HR, infrastructure) are necessary but not value-creating in that sense."}, {"id": "B22", "part": "B", "q": "Wie lautet die korrekte Reihenfolge des Phasenmodells des Prozessmanagements?", "opts": ["Aufnahme/Analyse → Definition → Umsetzung → Gestaltung → Controlling", "Definition → Aufnahme/Analyse → Gestaltung → Umsetzung → Controlling/Bewertung", "Gestaltung → Definition → Controlling → Umsetzung → Analyse", "Definition → Gestaltung → Analyse → Controlling → Umsetzung"], "correct": [1], "exp": "1. Definition (goals, scope, customer and strategy link) → 2. Aufnahme/Analyse (create transparency, understand the Ist) → 3. Gestaltung (Soll concept plus measures) → 4. Umsetzung (implement and stabilise) → 5. Controlling/Bewertung."}, {"id": "B23", "part": "B", "q": "Wofür steht das A in SMART nach der Vorlesung?", "opts": ["Ambitioniert", "Aktiv beeinflussbar (Actionable)", "Angemessen", "Attraktiv"], "correct": [1], "exp": "S = Spezifisch und simpel · M = Messbar · <b>A = Aktiv beeinflussbar</b> · R = Realistisch · T = Terminiert. „A“ is the letter most often varied between textbooks, so the lecture's own wording is what counts here. A good goal names the process (start and end), the Kennzahl, the Messpunkt, the Ist- and Zielwert, and a deadline."}, {"id": "B24", "part": "B", "q": "Wofür steht SIPOC und wozu dient es?", "opts": ["Strategy – Input – Planning – Output – Control; zur Strategieableitung", "Supplier – Input – Process – Output – Customer; zur groben Prozessabgrenzung", "System – Individual – Product – Organisation – Certification; zur Zertifizierung", "Standard – Instruction – Procedure – Operation – Check; zur Dokumentenlenkung"], "correct": [1], "exp": "Supplier – Input – Process – Output – Customer. Deliberately coarse: it sets the process boundaries and interfaces <i>before</i> detailed modelling, so you do not end up optimising the wrong section."}, {"id": "B25", "part": "B", "q": "Was zeigt ein Swimlane-Diagramm zusätzlich gegenüber einem einfachen Flussdiagramm?", "opts": ["Die Kosten je Prozessschritt", "Die Zuständigkeiten in Bahnen — ein Lane-Wechsel markiert eine Übergabe", "Die Eintrittswahrscheinlichkeit von Risiken", "Den Reifegrad des Prozesses"], "correct": [1], "exp": "A Flowchart shows the sequence of steps and decisions but usually hides the „Wer“. Swimlanes add roles or departments as lanes, and a <b>lane change equals a handover</b> — the typical friction point where waiting times and Medienbrüche appear. That makes it ideal for Ist-Aufnahme workshops."}, {"id": "B26", "part": "B", "q": "Worauf legt die Wertstromanalyse (Value Stream Mapping) den Fokus?", "opts": ["Auf die Zuständigkeiten je Abteilung", "Auf den End-to-End-Fluss mit Blick auf Verschwendung, etwa Wartezeiten und Bestände", "Auf die rechtliche Absicherung des Prozesses", "Auf die Anzahl der Prozessvarianten"], "correct": [1], "exp": "Wertstromanalyse traces the end-to-end flow and targets <b>Verschwendung</b> — waiting times, inventories. Compare the three representations: Flowchart = sequence, Swimlane = sequence plus responsibilities, Wertstrom = flow plus waste."}, {"id": "B27", "part": "B", "q": "Welche Aussage zu BPMN und EPK trifft zu?", "opts": ["EPK ist der internationale Standard, BPMN eine DACH-Besonderheit.", "BPMN ist internationaler Standard (Gateways, Pools und Lanes); EPK ist vor allem im DACH-, ARIS- und SAP-Umfeld verbreitet.", "Beide sind identisch in Syntax und Semantik.", "BPMN kennt keine Verzweigungslogik."], "correct": [1], "exp": "BPMN = international standard (OMG): events, tasks, Gateways (XOR/AND/OR), Pools and Lanes, message flows; it bridges business and IT and sits close to workflow and automation. EPK = strong in DACH via ARIS/SAP, logic <b>Ereignis → Funktion → Ereignis</b>, with no single worldwide standard version."}, {"id": "B28", "part": "B", "q": "Was gilt in der EPK-Semantik?", "opts": ["Ein Ereignis ist aktiv, braucht Zeit und darf entscheiden.", "Ein Ereignis ist ein Zustand: passiv, ohne Zeitbedarf, trifft keine Entscheidung.", "Eine Funktion ist passiv und benötigt keine Zeit.", "Start und Ende einer EPK sind immer Funktionen."], "correct": [1], "exp": "Ereignis = Zustand: passive, no duration, makes no decision. Funktion = Tätigkeit: active, takes time, may decide. Syntax rule: an EPK starts and ends with an Ereignis, and Ereignis and Funktion alternate (Wechselregel)."}, {"id": "B29", "part": "B", "q": "Welche Bedeutung hat der Konnektor XOR?", "opts": ["Alle Pfade werden parallel durchlaufen.", "Genau ein Pfad wird durchlaufen.", "Ein oder mehrere Pfade werden durchlaufen.", "Kein Pfad wird durchlaufen."], "correct": [1], "exp": "XOR = exactly one path. AND = parallel, all paths. OR = one or more paths. The same three connectors appear as Gateways in BPMN."}, {"id": "B30", "part": "B", "q": "Was ergänzt die eEPK gegenüber der klassischen EPK?", "opts": ["Nur eine farbliche Hervorhebung der Ereignisse", "Organisationseinheiten und Rollen, Informations- bzw. Datenobjekte, Anwendungssysteme und Informationsflüsse", "Die Berechnung von Durchlaufzeiten", "Eine verbindliche internationale Standardisierung"], "correct": [1], "exp": "The classic EPK shows primarily the Kontrollfluss. The <b>e</b>EPK adds context: roles and organisational units, data and information objects, application systems, and information flows. It gains completeness but can quickly become heavyweight — and it still is not internationally standardised the way BPMN is."}, {"id": "B31", "part": "B", "q": "Wofür wird das Ishikawa-Diagramm eingesetzt?", "opts": ["Zur Priorisierung nach dem 80/20-Prinzip", "Zur strukturierten Darstellung von Ursachen eines Problems (6M)", "Zur Darstellung von Terminverschiebungen", "Zur Modellierung des Kontrollflusses"], "correct": [1], "exp": "Ishikawa (Fischgräte): fish head = the problem or effect, main bones = cause categories (4M/5M/6M — Mensch, Maschine, Material, Methode, Mitwelt, Messung), side bones = concrete causes. Often combined with 5-Why. Ishikawa <i>finds</i> causes; Pareto <i>prioritises</i> them."}, {"id": "B32", "part": "B", "q": "Was besagt das Pareto-Prinzip?", "opts": ["Alle Ursachen tragen gleichmäßig zum Problem bei.", "Ein kleiner Teil der Ursachen verursacht einen großen Teil der Wirkung (ca. 80/20).", "Jede Verbesserung braucht mindestens 80 % Zustimmung.", "20 % der Prozesse müssen dokumentiert werden."], "correct": [1], "exp": "A small share of causes drives a large share of the effect. The Pareto diagram shows descending shares plus a cumulative curve; the ABC logic then says tackle the A-topics first (A = largest cumulative share, B = middle, C = rest)."}, {"id": "B33", "part": "B", "q": "Welche Zuordnung von KVP und BPR ist korrekt?", "opts": ["KVP = radikal und top-down, BPR = inkrementell und bottom-up", "KVP = inkrementell, evolutionär, bottom-up; BPR = radikal, revolutionär, top-down", "Beide sind radikale Neugestaltungsansätze.", "BPR baut immer auf dem bestehenden Ist-Prozess auf."], "correct": [1], "exp": "KVP = incremental, evolutionary, bottom-up, builds on the Ist; low risk, manageable effort. BPR = radical, revolutionary, top-down, redesign on the „grüne Wiese“; high freedom but higher implementation risk. Rule of thumb: problem in the details → KVP; problem in the structure or cut of the process → BPR. A hybrid is possible."}, {"id": "B34", "part": "B", "q": "Welches Gestaltungsprinzip gilt bei der Entwicklung des Soll-Prozesses?", "opts": ["„Von der IT nach vorn“ denken", "„Vom Kunden rückwärts“ denken", "„Von der Geschäftsleitung abwärts“ denken", "„Vom günstigsten Lieferanten aus“ denken"], "correct": [1], "exp": "„Vom Kunden rückwärts“ — the Soll-Prozess is derived consistently from Kundenanforderungen and Unternehmensziele, which is how interfaces get designed correctly. Typical design moves: eliminieren, zusammenlegen, parallelisieren, digitalisieren, standardisieren. Several Soll variants are drafted and then assessed on Zielerreichung and Umsetzbarkeit rather than fixing the first idea."}, {"id": "B35", "part": "B", "q": "Ein Unternehmen erhebt regelmäßig Kennzahlen, leitet daraus aber keine Maßnahmen ab. Wie ist das einzuordnen?", "opts": ["Das ist vollwertiges Prozesscontrolling.", "Das ist Monitoring, aber kein Controlling — Controlling umfasst Check UND Act.", "Das ist eine Prozessgestaltung.", "Das ist eine Wertstromanalyse."], "correct": [1], "exp": "„Messen ohne Reagieren ist Monitoring, kein Controlling.“ Controlling = Check <b>and</b> Act. The steering logic runs Ziele → Kennzahlen → Messpunkte → Messung → Bewertung → Abweichung → Korrektur/Verbesserung, and the principle is few meaningful KPIs rather than a „Kennzahlenfriedhof“."}, {"id": "B36", "part": "B", "q": "An welchen Stellen im Prozess wird gemessen?", "opts": ["Möglichst gleichmäßig an jedem einzelnen Schritt", "Dort, wo ein Ergebnis entsteht, und besonders an den Schnittstellen zwischen Teilprozessen", "Ausschließlich am Prozessende", "Ausschließlich beim Lieferanten"], "correct": [1], "exp": "Measurement points are chosen deliberately: where a result is produced, and above all at the interfaces between sub-processes, because that is where handovers and friction occur. Typical Kennzahlenblöcke: Zeit (Durchlaufzeit), Qualität (Fehlerquote), Kosten (Prozesskosten), Kunde (Termintreue)."}, {"id": "B37", "part": "B", "q": "Welche Anforderung gilt für Messmittel im QMS?", "opts": ["Sie müssen möglichst neu sein.", "Sie müssen verfügbar, geeignet sowie kalibriert bzw. überwacht sein.", "Sie dürfen ausschließlich von externen Dienstleistern bedient werden.", "Sie sind frei wählbar."], "correct": [1], "exp": "Messmittel must be available, suitable, and calibrated or monitored so that measurement results are reliable. Of the six resource types (Menschen, Betriebsmittel/Infrastruktur, Prozessumgebung, Messmittel, Informationen/IT, Finanzen), this is the one most often examined. Merksatz: „Ein QMS ist nur so gut wie seine Ressourcen.“"}, {"id": "B38", "part": "B", "q": "Wie lautet die Dokumentenpyramide von oben nach unten?", "opts": ["Arbeitsanweisung → Verfahrensanweisung → Prozessbeschreibung → QM-Handbuch", "QM-Handbuch → Prozessbeschreibung → Verfahrensanweisung → Arbeitsanweisung", "Prozessbeschreibung → QM-Handbuch → Arbeitsanweisung → Verfahrensanweisung", "QM-Handbuch → Arbeitsanweisung → Verfahrensanweisung → Prozessbeschreibung"], "correct": [1], "exp": "QMH → Prozessbeschreibung (PB) → Verfahrensanweisung (VA) → Arbeitsanweisung (AA). Memory hook: the closer to the workplace, the more concrete; the closer to leadership, the more framework. The fully inverted order is the standard distractor."}, {"id": "B39", "part": "B", "q": "„Wareneingang prüfen“ als konkrete Schritt-für-Schritt-Anleitung am Arbeitsplatz ist typischerweise …", "opts": ["eine Arbeitsanweisung (AA)", "das QM-Handbuch", "eine Prozesslandkarte", "eine Verfahrensanweisung (VA)"], "correct": [0], "exp": "An Arbeitsanweisung is the step-by-step instruction at the workplace — „Wareneingang prüfen“, „Messmittel kalibrieren“. A <i>Verfahrensanweisung</i> would instead standardise a recurring procedure such as Dokumentenlenkung or Reklamationsbearbeitung, one level higher."}, {"id": "B40", "part": "B", "multi": true, "q": "Welche Normzuordnung im Integrierten Managementsystem ist korrekt?", "opts": ["ISO 9001 = Qualität", "ISO 14001 = Umwelt", "ISO 45001 = Arbeitssicherheit", "ISO/IEC 27001 = Informationssicherheit", "ISO 45001 = Umweltmanagement"], "correct": [0, 1, 2, 3], "exp": "9001 Qualität · 14001 Umwelt · 45001 Arbeitssicherheit · 27001 Informationssicherheit. The last option contradicts the third — a consistency check worth running on any list question. The IMS bundles these as „ein System, mehrere Perspektiven“ with PDCA as its operating system; the benefit is less duplicated work and more consistency."}, {"id": "C1", "part": "C", "q": "Für ein Arbeitspaket wurde geschätzt: min = 10 PT, w = 14 PT, max = 30 PT. Wie hoch ist der erwartete Aufwand nach PERT?", "opts": ["18 PT", "16 PT", "14 PT", "20 PT"], "correct": [1], "exp": "PERT = (min + 4·w + max) / 6 = (10 + 56 + 30) / 6 = 96 / 6 = <b>16 PT</b>.<br>The 18 PT option is the simple mean (10+14+30)/3 — the standard trap. The weighting of w by 4 is the entire point of the method."}, {"id": "C2", "part": "C", "q": "Für einen Vorgang gilt: min = 4 Tage, w = 6 Tage, max = 14 Tage. PERT-Erwartungswert?", "opts": ["6 Tage", "7 Tage", "8 Tage", "9 Tage"], "correct": [1], "exp": "(4 + 4·6 + 14) / 6 = (4 + 24 + 14) / 6 = 42 / 6 = <b>7 Tage</b>."}, {"id": "C3", "part": "C", "pre": "Netzplan für die folgenden Fragen (Anordnungsbeziehungen Ende–Anfang, Projektstart bei 0):<table><thead><tr><th>Vorgang</th><th>Dauer</th><th>Vorgänger</th></tr></thead><tbody><tr><td>A</td><td>4</td><td>–</td></tr><tr><td>B</td><td>6</td><td>A</td></tr><tr><td>C</td><td>3</td><td>A</td></tr><tr><td>D</td><td>5</td><td>B, C</td></tr><tr><td>E</td><td>2</td><td>D</td></tr></tbody></table>", "q": "Wie hoch ist das früheste Ende (FE) von Vorgang D?", "opts": ["12", "14", "15", "17"], "correct": [2], "exp": "Forward pass: A → FB 0, FE 4. B → FB 4, FE 10. C → FB 4, FE 7. D has predecessors B and C, so take the <b>latest</b> FE = 10 → FB 10, FE = 10 + 5 = <b>15</b>. E → FB 15, FE 17.<br>If you got 12, you used C's FE of 7 instead of B's 10 — exactly what the „latest FE of the predecessors“ rule guards against."}, {"id": "C4", "part": "C", "pre": "Netzplan für die folgenden Fragen (Anordnungsbeziehungen Ende–Anfang, Projektstart bei 0):<table><thead><tr><th>Vorgang</th><th>Dauer</th><th>Vorgänger</th></tr></thead><tbody><tr><td>A</td><td>4</td><td>–</td></tr><tr><td>B</td><td>6</td><td>A</td></tr><tr><td>C</td><td>3</td><td>A</td></tr><tr><td>D</td><td>5</td><td>B, C</td></tr><tr><td>E</td><td>2</td><td>D</td></tr></tbody></table>", "q": "Wie hoch ist der Gesamtpuffer (GP) von Vorgang C?", "opts": ["0", "2", "3", "5"], "correct": [2], "exp": "Backward pass from FE(E) = 17: E → SE 17, SB 15. D → SE 15, SB 10. B → SE 10, SB 4. C → SE 10, SB 7.<br>GP(C) = SB − FB = 7 − 4 = <b>3</b>, identical via SE − FE = 10 − 7 = 3. C can slip by 3 units without endangering the end date."}, {"id": "C5", "part": "C", "pre": "Netzplan für die folgenden Fragen (Anordnungsbeziehungen Ende–Anfang, Projektstart bei 0):<table><thead><tr><th>Vorgang</th><th>Dauer</th><th>Vorgänger</th></tr></thead><tbody><tr><td>A</td><td>4</td><td>–</td></tr><tr><td>B</td><td>6</td><td>A</td></tr><tr><td>C</td><td>3</td><td>A</td></tr><tr><td>D</td><td>5</td><td>B, C</td></tr><tr><td>E</td><td>2</td><td>D</td></tr></tbody></table>", "q": "Welche Vorgänge liegen auf dem kritischen Pfad und wie lang ist die Projektdauer?", "opts": ["A – C – D – E; 14 Zeiteinheiten", "A – B – D – E; 17 Zeiteinheiten", "A – B – C – D – E; 20 Zeiteinheiten", "B – D – E; 13 Zeiteinheiten"], "correct": [1], "exp": "Gesamtpuffer: A = 0, B = 0, C = 3, D = 0, E = 0. Zero total float marks the critical path: <b>A – B – D – E</b>, duration 4 + 6 + 5 + 2 = <b>17</b>.<br>The option listing all five activities is impossible: B and C run in parallel, so they cannot both lie on one path."}, {"id": "C6", "part": "C", "pre": "Zum Stichtag gilt: <b>PV = 100.000 €</b>, <b>EV = 90.000 €</b>, <b>AC = 110.000 €</b>.", "q": "Wie hoch ist die Kostenabweichung (CV)?", "opts": ["+20.000 €", "−20.000 €", "−10.000 €", "+10.000 €"], "correct": [1], "exp": "CV = EV − AC = 90.000 − 110.000 = <b>−20.000 €</b>. Negative means more expensive than planned. The −10.000 € option is the SV (EV − PV) — check which figure the question asks for. Anchor the sign rule: EV always comes first, so a negative result always means „bad“."}, {"id": "C7", "part": "C", "pre": "Zum Stichtag gilt: <b>PV = 100.000 €</b>, <b>EV = 90.000 €</b>, <b>AC = 110.000 €</b>.", "q": "Wie hoch ist der SPI und was bedeutet er?", "opts": ["0,90 — das Projekt ist im Verzug", "1,10 — das Projekt ist dem Plan voraus", "0,82 — das Projekt ist über Budget", "1,22 — das Projekt ist dem Plan voraus"], "correct": [0], "exp": "SPI = EV / PV = 90.000 / 100.000 = <b>0,90</b>. Below 1 = behind schedule.<br>The 0,82 option is the CPI (90.000 / 110.000) — correct arithmetic, wrong index. Mixing up the two is the standard trap here, so read carefully which one is asked."}, {"id": "C8", "part": "C", "q": "Ein anderes Projekt weist auf: PV = 100.000 €, EV = 120.000 €, AC = 130.000 €. Wie ist der Status zu beurteilen?", "opts": ["Dem Zeitplan voraus und unter Budget", "Dem Zeitplan voraus, aber über Budget", "Im Verzug und über Budget", "Im Verzug, aber unter Budget"], "correct": [1], "exp": "SPI = 120/100 = 1,20 → ahead of schedule. CPI = 120/130 = 0,92 → over budget. So: <b>ahead of schedule but over budget</b>.<br>Mixed cases like this are the favourite exam variant precisely because a single „good or bad“ gut answer fails. Always compute both indices."}, {"id": "C9", "part": "C", "q": "Ein Risiko hat eine Eintrittswahrscheinlichkeit von 30 % und eine geschätzte Schadenshöhe von 200.000 €. Wie hoch ist der Risikoindex (RI)?", "opts": ["6.000 €", "60.000 €", "66.000 €", "200.300 €"], "correct": [1], "exp": "RI = EWK × Schadenshöhe = 0,3 × 200.000 = <b>60.000 €</b>. The Risikoportfolio then plots these to show which risks matter most for project success."}], "formulas": [["PERT / Dreipunktschätzung", "(min + 4·w + max) / 6", "Puffer sitzt im <b>max</b>, nie im w"], ["Netzplan vorwärts", "FE = FB + Dauer", "mehrere Vorgänger → <b>spätester</b> FE"], ["Netzplan rückwärts", "SB = SE − Dauer", "mehrere Nachfolger → <b>frühester</b> SB"], ["Gesamtpuffer", "GP = SB − FB = SE − FE", "<b>GP = 0 ⇒ kritischer Pfad</b>"], ["Freier Puffer", "FP ≤ GP", "Verschiebung ohne FB des Nachfolgers zu stören"], ["Risikoindex", "RI = EWK × Schadenshöhe", "Basis für das Risikoportfolio"], ["Kostenabweichung", "CV = EV − AC", "negativ = teurer als geplant"], ["Terminabweichung", "SV = EV − PV", "negativ = im Verzug"], ["Cost Performance Index", "CPI = EV / AC", "&gt; 1 = unter Budget"], ["Schedule Performance Index", "SPI = EV / PV", "&gt; 1 = vor dem Plan"]], "pairs": [["<b>Lastenheft</b> — AG, WAS und WOFÜR", "<b>Pflichtenheft</b> — AN, WIE und WOMIT"], ["<b>Vorgang</b> — hat eine Dauer", "<b>Ereignis / Meilenstein</b> — Dauer 0"], ["<b>Programm</b> — inhaltlich verbundene Projekte", "<b>Portfolio</b> — alle Projekte, auch unverbunden"], ["<b>Ablaufplanung</b> — Aufgaben und Reihenfolge, keine Termine", "<b>Terminplanung</b> — mit Zeiten und Ressourcen"], ["<b>PSP</b> — das WAS, keine Termine", "<b>Netzplan</b> — Abhängigkeiten und Zeiten"], ["<b>QM</b> — die Tätigkeiten", "<b>QMS</b> — das System: Struktur, Ressourcen, Doku"], ["<b>Aufbauorganisation</b> — WER macht was", "<b>Ablauforganisation</b> — WIE und WOMIT"], ["<b>Prozess</b> — jede Abfolge von Aktivitäten", "<b>Geschäftsprozess</b> — End-to-End, funktionsübergreifend, wertschöpfend"], ["<b>KVP</b> — inkrementell, bottom-up, geringes Risiko", "<b>BPR</b> — radikal, top-down, hohes Risiko"], ["<b>Flowchart</b> — nur der Ablauf", "<b>Swimlane</b> — Ablauf plus Zuständigkeiten, Lane-Wechsel = Übergabe"], ["<b>BPMN</b> — internationaler Standard, Gateways, Pools", "<b>EPK</b> — DACH/ARIS/SAP, Ereignis→Funktion→Ereignis"], ["<b>EPK</b> — nur Kontrollfluss", "<b>eEPK</b> — plus Rollen, Datenobjekte, Systeme, Infoflüsse"], ["<b>Ereignis (EPK)</b> — passiv, keine Zeit, entscheidet nicht", "<b>Funktion (EPK)</b> — aktiv, braucht Zeit, darf entscheiden"], ["<b>Ishikawa</b> — findet Ursachen (6M)", "<b>Pareto</b> — priorisiert Ursachen (80/20)"], ["<b>Qualitätspolitik</b> — Rahmen, strategisch", "<b>Qualitätsziele</b> — konkret und messbar"], ["<b>EVA (QM)</b> — Eingabe → Verarbeitung → Ausgabe", "<b>EVA (PM)</b> — Earned-Value-Analyse"], ["<b>Kompetenz</b> — Können", "<b>Verantwortung</b> — Rechenschaftspflicht · <b>Befugnis</b> — Handlungsrecht"]], "listsPM": [["Projektphasen", "Initialisierung → Definition → Planung → Steuerung → Abschluss"], ["Vorgehensmodelle", "sequenziell (Wasserfall, V-Modell) · iterativ (Spiralmodell, Simultaneous Engineering) · agil (Scrum, Kanban)"], ["Magisches Dreieck", "Zeit – Kosten – Qualität · <mk>IPMA ICB 4.0</mk> ergänzt: Perspective, People, Practice"], ["Projektauftrag (DIN 69901)", "Zielsetzung · erwartete Ergebnisse · Randbedingungen · Verantwortlichkeiten · Ressourcen · Willensbekundung AG/AN"], ["RACI", "R = ausführend · <mk>A = rechenschaftspflichtig, genau 1×</mk> · C = beraten · I = informiert"], ["Schätzmethoden", "Zählen/Messen/Wiegen · Expertenbefragung · Delphi (anonym, iterativ) · Function Points (Funktionsumfang) · Dreipunkt/PERT"], ["Ressourcenkonflikte lösen", "Schieben · Strecken · Stauchen · Teilen"], ["Risikostrategien", "Vermeiden · Vermindern · Übertragen · Akzeptieren"], ["Umfeldanalyse", "PEST = Political, Economical, Sociological, Technological · <mk>STEEP</mk> ergänzt Environmental"], ["Fortschrittsmessung", "0/100 = erst bei Fertigstellung · 50/50 = halb bei Start, halb bei Ende · Statusschrittmethode = gewichtete Meilensteintechnik"], ["Projektabschluss", "Abnahme → Dokumentation und Archivierung → Lessons Learned → Team- und Infrastrukturauflösung"]], "listsQM": [["Kano", "Basis (fehlt → Unzufriedenheit; erfüllt → neutral) · Leistung (linear) · Begeisterung (Wow) · Wanderung: <mk>Begeisterung → Leistung → Basis</mk>"], ["Drei Ebenen der Qualität", "System – Prozess – Produkt"], ["4 QM-Aktivitäten", "Planung (Ziele und Weg) · Steuerung (erfüllen, korrigieren) · Sicherung (Vertrauen) · Verbesserung (Fähigkeit erhöhen, KVP)"], ["PDCA", "Plan – Do – Check – Act · Deming- bzw. Shewhart-Zyklus"], ["Betriebsorganisation", "Zwei Ziele: <mk>Humanisierung der Arbeit</mk> und <mk>Steigerung der Wirtschaftlichkeit</mk>"], ["Organisationsformen", "funktional · prozessorientiert (Struktur folgt End-to-End-Prozessen, Process Owner) · Matrix (zwei Logiken, höherer Abstimmungsaufwand)"], ["Prozessarten", "Führungs- · Kern-/Wertschöpfungs- · Unterstützungsprozesse — nur Kernprozesse sind direkt wertschöpfend"], ["EVA-Prinzip (QM)", "Eingabe → Verarbeitung → Ausgabe · gut definierter Prozess: messbar, wiederholbar, konsistent, Mehrwert"], ["SMART", "Spezifisch · Messbar · <mk>Aktiv beeinflussbar</mk> · Realistisch · Terminiert"], ["SIPOC", "Supplier – Input – Process – Output – Customer · zur Prozessabgrenzung vor dem Modellieren"], ["Phasenmodell Prozessmanagement", "Definition → Aufnahme/Analyse → Gestaltung → Umsetzung → Controlling/Bewertung"], ["Prozessdarstellung", "Flowchart (Ablauf) · Swimlane (plus Zuständigkeiten, Lane-Wechsel = Übergabe) · Wertstrom (Fluss plus Verschwendung)"], ["Konnektoren", "XOR = genau ein Pfad · AND = alle parallel · OR = ein oder mehrere"], ["Prozessgestaltung", "<mk>„Vom Kunden rückwärts“</mk> · eliminieren, zusammenlegen, parallelisieren, digitalisieren, standardisieren · KVP oder BPR oder Hybrid"], ["Prozesscontrolling", "Ziele → Kennzahlen → Messpunkte → Messung → Bewertung → Abweichung → Korrektur · Kennzahlenblöcke: Zeit, Qualität, Kosten, Kunde"], ["Dokumentenpyramide", "QMH → Prozessbeschreibung → Verfahrensanweisung → Arbeitsanweisung"], ["QMS-Ressourcen (6)", "Menschen · Betriebsmittel/Infrastruktur · Prozessumgebung · <mk>Messmittel, kalibriert</mk> · Informationen/IT · Finanzen"], ["IMS-Normen", "9001 Qualität · 14001 Umwelt · 45001 Arbeitssicherheit · 27001 Informationssicherheit"]], "quotes": ["Je später ein Fehler oder eine Änderung entdeckt wird, desto teurer wird sie.", "Wissen nützt nichts, wenn es in neuen Projekten nicht abgerufen wird.", "Messen ohne Reagieren ist Monitoring, kein Controlling.", "Ohne Dokumentation keine Wiederholbarkeit, ohne Wiederholbarkeit keine stabile Qualität.", "Je näher am Arbeitsplatz, desto konkreter die Vorgaben; je näher an der Führung, desto mehr Rahmen.", "Ein QMS ist nur so gut wie seine Ressourcen.", "Qualitätsmanagement ist kein Inselthema.", "Jeder Geschäftsprozess besteht aus vielen Prozessen, aber nicht jeder Prozess ist ein Geschäftsprozess.", "So viel wie nötig, so wenig wie möglich."], "traps": ["<b>Vertauschte Paare.</b> Lastenheft/Pflichtenheft und Aufbau-/Ablauforganisation werden fast immer einmal verdreht angeboten. Bei jeder Zuordnungsfrage kurz prüfen: Wer erstellt es? Welche Frage beantwortet es?", "<b>Erfundene Listenpunkte.</b> In Definitionslisten wird ein plausibel klingender betriebswirtschaftlicher Begriff eingeschmuggelt — „Gewinnmaximierung“, „Kostenminimierung“. Weder DIN 69901 noch die Betriebsorganisation nennen Gewinnziele.", "<b>Querläufer zwischen den Teilen.</b> PM-Begriffe tauchen in QM-Fragen auf und umgekehrt. Zwei Beispiele: <b>Einmaligkeit</b> ist ein Projektmerkmal und bei einem Prozess das Gegenteil des Gewünschten — und <b>EVA</b> heißt im QM-Teil Eingabe→Verarbeitung→Ausgabe, im PM-Teil Earned-Value-Analyse.", "<b>Verwechselte Indizes.</b> Bei der Earned-Value-Analyse wird nach dem SPI gefragt, angeboten wird der CPI-Wert oder umgekehrt. Immer beide ausrechnen, dann die gefragte Zahl auswählen."], "plan": [["10 min", "Formeln abdecken und aus dem Kopf aufschreiben."], ["15 min", "Begriffspaare: linke Spalte abdecken, rechte rekonstruieren — dann umgekehrt."], ["15 min", "Listen laut durchgehen; markieren, was hakt."], ["5 min", "Die vier Fallen lesen. Nichts Neues mehr anfangen."]], "scope": "<b>Nicht prüfungsrelevant und daher hier entfernt:</b> Qualitätsmanagement <b>Kapitel 3</b> (ISO-9000-Normenfamilie — Kernnormen 9000/9001/9004/19011, die sieben QM-Grundsätze, High Level Structure) und <b>Kapitel 9</b> (QMS – Messung und Verbesserung — Audit, Managementbewertung, Kennzahlen als Entscheidungsbasis, Nichtkonformitäten und Wirksamkeitsprüfung). An ihre Stelle sind zusätzliche Fragen aus den prüfungsrelevanten Kapiteln 5 und 6 getreten.", "parts": [{"k": "A", "num": "Teil A", "title": "Projektmanagement"}, {"k": "B", "num": "Teil B", "title": "Qualitätsmanagement"}, {"k": "C", "num": "Teil C", "title": "Rechenaufgaben"}]};
+const Q = D.questions, PARTS = D.parts, LETTERS = "abcdefgh";
+const state = {}, order = {};
+let filter = "all";
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+function initOrder(){Q.forEach(q=>{order[q.id]=shuffle(q.opts.map((_,i)=>i));});}
+function sameSet(a,b){return a.length===b.length&&a.every(x=>b.includes(x));}
+function visible(q){
+  if(filter==="all")return true;
+  if(filter==="wrong")return state[q.id]&&state[q.id].done&&!state[q.id].ok;
+  if(filter==="open")return !(state[q.id]&&state[q.id].done);
+  return q.part===filter;
+}
+function renderQuiz(){
+  const root=document.getElementById("quizBody"); root.innerHTML=""; let shown=0;
+  PARTS.forEach(p=>{
+    const qs=Q.filter(q=>q.part===p.k&&visible(q)); if(!qs.length)return; shown+=qs.length;
+    const h=document.createElement("div"); h.className="sechead";
+    h.innerHTML='<span class="num">'+p.num.toUpperCase()+'</span><h2>'+p.title+'</h2>'+
+      '<span class="count">'+qs.length+' von '+Q.filter(x=>x.part===p.k).length+'</span>';
+    root.appendChild(h); qs.forEach(q=>root.appendChild(card(q)));
+  });
+  if(!shown){
+    const e=document.createElement("div"); e.className="empty";
+    e.textContent = filter==="wrong"
+      ? "Keine falsch beantworteten Fragen. Entweder läuft es gut — oder es sind noch keine beantwortet."
+      : "Keine offenen Fragen mehr in diesem Filter.";
+    root.appendChild(e);
+  }
+  updateScore();
+}
+function card(q){
+  const st=state[q.id]||{picked:[],done:false,ok:false};
+  const el=document.createElement("section");
+  el.className="q"+(st.done?(st.ok?" is-ok":" is-bad"):""); el.id="q-"+q.id;
+  const top=document.createElement("div"); top.className="q-top";
+  top.innerHTML='<span class="q-id">'+q.id+'</span><div class="q-text">'+q.q+
+    (q.multi?'<br><span class="q-multi">Mehrfachauswahl</span>':'')+'</div>';
+  el.appendChild(top);
+  if(q.pre){const pre=document.createElement("div");pre.className="q-pre";pre.innerHTML=q.pre;el.appendChild(pre);}
+  const ul=document.createElement("ul"); ul.className="opts";
+  order[q.id].forEach((oi,pos)=>{
+    const li=document.createElement("li"), b=document.createElement("button");
+    b.className="opt"; b.type="button";
+    const isC=q.correct.indexOf(oi)>-1, isP=st.picked.indexOf(oi)>-1;
+    if(st.done){ b.disabled=true;
+      if(isC&&isP)b.classList.add("correct");
+      else if(isC)b.classList.add(q.multi?"missed":"correct");
+      else if(isP)b.classList.add("wrong");
+    } else if(isP){ b.classList.add("picked"); }
+    b.innerHTML='<span class="box">'+(st.done&&isC?"\u2713":(st.done&&isP?"\u2715":LETTERS[pos]))+
+      '</span><span class="txt">'+q.opts[oi]+'</span>';
+    b.addEventListener("click",()=>pick(q,oi)); li.appendChild(b); ul.appendChild(li);
+  });
+  el.appendChild(ul);
+  if(q.multi&&!st.done){
+    const w=document.createElement("div"); w.className="check";
+    const btn=document.createElement("button"); btn.className="btn"; btn.type="button";
+    btn.textContent="Antwort prüfen"; btn.disabled=!st.picked.length;
+    btn.addEventListener("click",()=>evaluate(q)); w.appendChild(btn); el.appendChild(w);
+  }
+  if(st.done){
+    const ex=document.createElement("div"); ex.className="exp";
+    ex.innerHTML='<span class="verdict '+(st.ok?"ok":"bad")+'">'+
+      (st.ok?"Richtig":"Falsch — richtig ist die markierte Antwort")+'</span>'+q.exp;
+    el.appendChild(ex);
+  }
+  return el;
+}
+function pick(q,idx){
+  const st=state[q.id]||(state[q.id]={picked:[],done:false,ok:false});
+  if(st.done)return;
+  if(q.multi){ const i=st.picked.indexOf(idx); if(i>-1)st.picked.splice(i,1); else st.picked.push(idx); refresh(q); }
+  else { st.picked=[idx]; evaluate(q); }
+}
+function evaluate(q){
+  const st=state[q.id]; if(!st||!st.picked.length)return;
+  st.done=true; st.ok=sameSet(st.picked,q.correct); refresh(q);
+}
+function refresh(q){
+  const old=document.getElementById("q-"+q.id); if(!old)return;
+  old.replaceWith(card(q)); updateScore();
+}
+function updateScore(){
+  const rows=document.getElementById("scoreRows"); rows.innerHTML=""; let tD=0,tO=0;
+  PARTS.forEach(p=>{
+    const all=Q.filter(q=>q.part===p.k);
+    const done=all.filter(q=>state[q.id]&&state[q.id].done);
+    const ok=done.filter(q=>state[q.id].ok);
+    tD+=done.length; tO+=ok.length;
+    const d=document.createElement("div");
+    d.innerHTML='<div class="srow"><span>'+p.num+'</span><b>'+ok.length+'/'+done.length+
+      '<span style="color:var(--ink-3)"> · '+all.length+'</span></b></div>'+
+      '<div class="meter"><i style="width:'+(all.length?ok.length/all.length*100:0)+'%"></i></div>';
+    rows.appendChild(d);
+  });
+  document.getElementById("scoreTotal").textContent = tD ? Math.round(tO/tD*100)+"%" : "—";
+}
+function renderSheet(){
+  document.getElementById("formulaRows").innerHTML = D.formulas.map(
+    r=>'<tr><td>'+r[0]+'</td><td class="f">'+r[1]+'</td><td class="hint">'+r[2]+'</td></tr>').join("");
+  document.getElementById("pairRows").innerHTML = D.pairs.map(p=>
+    '<button class="pair hidden" type="button"><span class="side">'+p[0]+
+    '</span><span class="mid">\u2194</span><span class="side b"><span>'+p[1]+'</span></span></button>').join("");
+  document.querySelectorAll(".pair").forEach(el=>el.addEventListener("click",()=>el.classList.toggle("hidden")));
+  const box=a=>a.map(l=>'<div class="lbox"><span class="k">'+l[0]+'</span><p>'+l[1]+'</p></div>').join("");
+  document.getElementById("listsPM").innerHTML=box(D.listsPM);
+  document.getElementById("listsQM").innerHTML=box(D.listsQM);
+  document.getElementById("quoteRows").innerHTML=D.quotes.map(q=>'<li>'+q+'\u201C</li>').join("");
+  document.getElementById("trapRows").innerHTML=D.traps.map(t=>'<li>'+t+'</li>').join("");
+  document.getElementById("planRows").innerHTML=D.plan.map(p=>'<div class="t">'+p[0]+'</div><div class="d">'+p[1]+'</div>').join("");
+  const rv=document.getElementById("btnReveal");
+  rv.addEventListener("click",e=>{
+    e.stopPropagation();
+    const on=rv.getAttribute("aria-pressed")==="true";
+    rv.setAttribute("aria-pressed",String(!on));
+    rv.textContent = !on ? "Alle verdecken" : "Alle aufdecken";
+    document.querySelectorAll(".pair").forEach(p=>p.classList.toggle("hidden",on));
+  });
+}
+document.querySelectorAll("[data-filter]").forEach(b=>{
+  b.addEventListener("click",()=>{
+    filter=b.dataset.filter;
+    document.querySelectorAll("[data-filter]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+    renderQuiz(); window.scrollTo({top:0,behavior:"smooth"});
+  });
+});
+document.getElementById("btnReset").addEventListener("click",()=>{
+  Object.keys(state).forEach(k=>delete state[k]);
+  initOrder(); renderQuiz(); window.scrollTo({top:0,behavior:"smooth"});
+});
+function switchTab(isQuiz){
+  document.getElementById("tabQuiz").setAttribute("aria-selected",String(isQuiz));
+  document.getElementById("tabSheet").setAttribute("aria-selected",String(!isQuiz));
+  document.getElementById("viewQuiz").hidden=!isQuiz;
+  document.getElementById("viewSheet").hidden=isQuiz;
+  window.scrollTo({top:0});
+}
+document.getElementById("tabQuiz").addEventListener("click",()=>switchTab(true));
+document.getElementById("tabSheet").addEventListener("click",()=>switchTab(false));
+document.getElementById("tbCount").textContent=Q.length;
+document.getElementById("scopeQuiz").innerHTML=D.scope;
+document.getElementById("scopeSheet").innerHTML=D.scope;
+initOrder(); renderQuiz(); renderSheet();
+</script>
+</body>
+</html>
